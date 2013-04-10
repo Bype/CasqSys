@@ -7,7 +7,7 @@ r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 
-TYPE = '_workstation._tcp'
+TYPE = '_casqsys._tcp'
 
 def service_resolved(*args):
     print 'adding %s with %s' % (args[2], args[7])
