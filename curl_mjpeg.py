@@ -45,6 +45,7 @@ class Player(object):
         
     def body_callback(self, buf):
         self.fifo.write(buf)
+        aChangedAsked = False
         self.lock.acquire()
         if(self.localtimeout < (datetime.datetime.now() - self.lastChange).seconds):
             self.isTimedOut = True
