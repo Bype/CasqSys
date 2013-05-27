@@ -23,7 +23,7 @@ class Player(object):
     def setupRPIO(self):
         RPIO.setmode(RPIO.BCM)
         RPIO.setup(17, RPIO.IN, pull_up_down=RPIO.PUD_UP)
-        RPIO.add_interrupt_callback(17, self.gpio_callback, edge='rising', debounce_timeout_ms=5000)
+        RPIO.add_interrupt_callback(17, self.gpio_callback, edge='rising', debounce_timeout_ms=1000)
         RPIO.wait_for_interrupts(threaded=True)
         
     def gpio_callback(self, gpio_id, val):
@@ -70,7 +70,7 @@ class Player(object):
         print 'connecting to ' + host
         self.connection = pycurl.Curl()
         self.connection.setopt(self.connection.URL, 'http://%s/?action=stream' % (host))
-        self.connection.setopt(self.connection.BUFFERSIZE, 32768)
+        self.connection.setopt(self.connection.BUFFERSIZE, 262144)
         self.connection.setopt(self.connection.WRITEFUNCTION, self.body_callback)
         
     def setupRedis(self):
@@ -78,7 +78,11 @@ class Player(object):
         
     def switchStream(self):
         try:
-            self.connectTo(random.sample(red.smembers('ip'), 1))
+            newHost = random.sample(self.red.smembers('ip'), 1)[0]
+            if(self.currentHost != newHost):
+                self.connectTo(newHost)
+            else:
+                self.connectTo('localhost')
         except:
             self.connectTo('localhost')
 
@@ -95,5 +99,5 @@ class Player(object):
                 self.switchStream()
             
 if __name__ == "__main__":
-    Player(60).main()
+    Player(7).main()
 
