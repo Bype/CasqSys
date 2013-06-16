@@ -44,15 +44,17 @@ class Player(object):
         self.fifo = open(filename, 'w')
         
     def body_callback(self, buf):
-        self.fifo.write(buf)
+        if(99 < sys.getsizeof(buf)):
+             self.fifo.write(buf)
         aChangedAsked = False
         self.lock.acquire()
-        if(self.localtimeout < (datetime.datetime.now() - self.lastChange).seconds):
-            self.isTimedOut = True
-            if (self.currentHost != 'localhost'):
-                aChangedAsked = True
+        if(self.isChangedAsked):
+            aChangedAsked = True
         else:
-            aChangedAsked = self.isChangedAsked
+            if(self.localtimeout < (datetime.datetime.now() - self.lastChange).seconds):
+                self.isTimedOut = True
+                if (self.currentHost != 'localhost'):
+                    aChangedAsked = True
         self.lock.release()    
         if(aChangedAsked):
             return -1 
