@@ -1,0 +1,28 @@
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+# Print the IP address
+_IP=$(hostname -I) || true
+if [ "$_IP" ]; then
+  printf "My IP address is %s\n" "$_IP"
+fi
+
+# Performance tweaking
+echo -n performance | sudo tee /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+
+# Disabling ethernet device to save power and cpu
+echo -n "1-1.1:1.0" | sudo tee /sys/bus/usb/drivers/smsc95xx/unbind
+
+# processes start
+/etc/init.d/mjpg_streamer.sh start
+python /home/pi/bin/avahiBrowser.py&
+python /home/pi/bin/curl_mjpeg.py&
+
+exit 0
